@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     nano \
     libzip-dev \
     libpq-dev \
-    && docker-php-ext-install pdo pdo_mysql zip mbstring exif pcntl bcmath gd
+    && docker-php-ext-install pdo pdo_pgsql zip mbstring exif pcntl bcmath gd
 
 # 2. ติดตั้ง Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
