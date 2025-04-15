@@ -1,20 +1,39 @@
-FROM richarvey/nginx-php-fpm:1.7.2
+FROM php:8.2-fpm
 
+# 1. ติดตั้ง dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpng-dev \
+    libjpeg-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    curl \
+    git \
+    nano \
+    libzip-dev \
+    libpq-dev \
+    && docker-php-ext-install pdo pdo_mysql zip mbstring exif pcntl bcmath gd
+
+# 2. ติดตั้ง Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# 3. ตั้ง working directory
+WORKDIR /var/www
+
+# 4. Copy โค้ดทั้งหมด
 COPY . .
 
-# Image config
-ENV SKIP_COMPOSER 1
-ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
-ENV REAL_IP_HEADER 1
+# 5. ติดตั้ง package Laravel
+RUN composer install --optimize-autoloader --no-dev
 
-# Laravel config
-ENV APP_ENV production
-ENV APP_DEBUG false
-ENV LOG_CHANNEL stderr
+# 6. กำหนด permission
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 755 /var/www/storage
 
-# Allow composer to run as root
-ENV COMPOSER_ALLOW_SUPERUSER 1
+# 7. เปิด port
+EXPOSE 8000
 
-CMD ["/start.sh"]
+# 8. คำสั่งรัน Laravel
+CMD php artisan serve --host=0.0.0.0 --port=8000
