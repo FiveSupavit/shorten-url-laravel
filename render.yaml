@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: laravel-app
-    env: docker
-    buildCommand: docker build -t laravel-app .
-    startCommand: docker run -p 80:80 laravel-app
-    plan: free
-    branches:
-      - main
